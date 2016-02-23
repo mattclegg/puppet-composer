@@ -10,7 +10,14 @@ Vagrant.configure("2") do |config|
 
   config.vm.box = "puppetlabs/ubuntu-12.04-64-puppet"
   config.vm.synced_folder "./", "/etc/puppet/modules/composer"
-  config.vm.provision "puppet" do |puppet|
+
+  config.vm.provision "shell",
+  inline: "
+    if [ ! -d /etc/puppet/modules/stdlib ]; then puppet module install puppetlabs-stdlib; fi
+    if [ ! -d /etc/puppet/modules/git ]; then puppet module install puppetlabs-git; fi
+  "
+
+  config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "spec/fixtures/manifests"
     puppet.manifest_file  = "vagrant.pp"
     puppet.module_path = "spec/fixtures/modules"
